@@ -21,7 +21,10 @@ import java.util.*
 fun DoctoresScreen(
     onNavigateBack: () -> Unit,
     onNavigateToAddDoctor: () -> Unit,
-    doctores: List<Doctor>
+    doctores: List<Doctor>,
+    onUpdateDoctor: (Doctor) -> Unit,
+    onDeleteDoctor: (Doctor) -> Unit,
+    onNavigateToEditDoctor: (Long) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -72,7 +75,12 @@ fun DoctoresScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(doctores) { doctor ->
-                    DoctorCard(doctor = doctor)
+                    DoctorCard(
+                        doctor = doctor,
+                        onUpdate = onUpdateDoctor,
+                        onDelete = onDeleteDoctor,
+                        onEditNavigate = { onNavigateToEditDoctor(doctor.id) }
+                    )
                 }
             }
         }
@@ -80,7 +88,20 @@ fun DoctoresScreen(
 }
 
 @Composable
-fun DoctorCard(doctor: Doctor) {
+fun DoctorCard(
+    doctor: Doctor,
+    onUpdate: (Doctor) -> Unit,
+    onDelete: (Doctor) -> Unit,
+    onEditNavigate: () -> Unit
+) {
+    var showEdit by remember { mutableStateOf(false) }
+    var showDelete by remember { mutableStateOf(false) }
+    var editedNombre by remember { mutableStateOf(doctor.nombre) }
+    var editedEspecialidad by remember { mutableStateOf(doctor.especialidad) }
+    var editedTelefono by remember { mutableStateOf(doctor.telefono) }
+    var editedEmail by remember { mutableStateOf(doctor.email ?: "") }
+    var editedInicio by remember { mutableStateOf(doctor.horarioInicio) }
+    var editedFin by remember { mutableStateOf(doctor.horarioFin) }
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -126,7 +147,46 @@ fun DoctorCard(doctor: Doctor) {
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(onClick = onEditNavigate) { Text("Editar") }
+
+                TextButton(
+                    onClick = { showDelete = true },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) { Text("Eliminar") }
+            }
         }
+    }
+
+    // Edición se mueve a pantalla dedicada
+
+    if (showDelete) {
+        AlertDialog(
+            onDismissRequest = { showDelete = false },
+            title = { Text("Eliminar doctor") },
+            text = { Text("¿Seguro que deseas eliminar a ${doctor.nombre}?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete(doctor)
+                        showDelete = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDelete = false }) { Text("Cancelar") }
+            }
+        )
     }
 }
 

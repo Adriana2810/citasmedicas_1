@@ -72,6 +72,30 @@ class CitasViewModel(
         }
     }
     
+    fun updatePaciente(paciente: Paciente) {
+        viewModelScope.launch {
+            repository.updatePaciente(paciente)
+        }
+    }
+    
+    fun updateDoctor(doctor: Doctor) {
+        viewModelScope.launch {
+            repository.updateDoctor(doctor)
+        }
+    }
+    
+    fun deletePaciente(paciente: Paciente) {
+        viewModelScope.launch {
+            repository.deletePaciente(paciente)
+        }
+    }
+    
+    fun deleteDoctor(doctor: Doctor) {
+        viewModelScope.launch {
+            repository.deleteDoctor(doctor)
+        }
+    }
+    
     fun insertCita(cita: Cita) {
         viewModelScope.launch {
             repository.insertCita(cita)

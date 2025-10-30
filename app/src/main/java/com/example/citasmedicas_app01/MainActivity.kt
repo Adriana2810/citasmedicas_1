@@ -156,7 +156,10 @@ fun CitasApp(repository: CitasRepository) {
             PacientesScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToAddPaciente = { navController.navigate("add_paciente") },
-                pacientes = pacientes
+                pacientes = pacientes,
+                onUpdatePaciente = { p -> viewModel.updatePaciente(p) },
+                onDeletePaciente = { p -> viewModel.deletePaciente(p) },
+                onNavigateToEditPaciente = { id -> navController.navigate("edit_paciente/$id") }
             )
         }
         
@@ -171,7 +174,10 @@ fun CitasApp(repository: CitasRepository) {
             DoctoresScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToAddDoctor = { navController.navigate("add_doctor") },
-                doctores = doctores
+                doctores = doctores,
+                onUpdateDoctor = { d -> viewModel.updateDoctor(d) },
+                onDeleteDoctor = { d -> viewModel.deleteDoctor(d) },
+                onNavigateToEditDoctor = { id -> navController.navigate("edit_doctor/$id") }
             )
         }
         
@@ -180,6 +186,36 @@ fun CitasApp(repository: CitasRepository) {
                 onNavigateBack = { navController.popBackStack() },
                 onSaveDoctor = { doctor -> viewModel.insertDoctor(doctor) }
             )
+        }
+        composable("edit_paciente/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toLongOrNull()
+            val paciente = id?.let { viewModel.getPacienteById(it) }
+            if (paciente != null) {
+                EditPacienteScreen(
+                    paciente = paciente,
+                    onNavigateBack = { navController.popBackStack() },
+                    onUpdatePaciente = { p -> viewModel.updatePaciente(p) },
+                    onDeletePaciente = { p -> viewModel.deletePaciente(p) }
+                )
+            } else {
+                // Si no se encontró, regresar
+                LaunchedEffect(Unit) { navController.popBackStack() }
+            }
+        }
+
+        composable("edit_doctor/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toLongOrNull()
+            val doctor = id?.let { viewModel.getDoctorById(it) }
+            if (doctor != null) {
+                EditDoctorScreen(
+                    doctor = doctor,
+                    onNavigateBack = { navController.popBackStack() },
+                    onUpdateDoctor = { d -> viewModel.updateDoctor(d) },
+                    onDeleteDoctor = { d -> viewModel.deleteDoctor(d) }
+                )
+            } else {
+                LaunchedEffect(Unit) { navController.popBackStack() }
+            }
         }
     }
 }
